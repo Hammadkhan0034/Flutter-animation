@@ -196,7 +196,8 @@ class RotatingContainerState extends State<RotatingContainer>
   double containerHeight = 500;
   double angleOfCardRotation = 0.2;
   double rotateCradTill = 50;
-
+  double delayY = 0;
+  double delayX = 0;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -204,15 +205,18 @@ class RotatingContainerState extends State<RotatingContainer>
         child: GestureDetector(
           onPanUpdate: (details) {
             setState(() {
-              if (_translateY <= 0 &&
+              if (delayY > -50) {
+                delayY += details.delta.dy;
+              } else if (_translateY <= 0 &&
                   details.delta.dy < 0 &&
                   _translateX == 0) {
                 _translateY += details.delta.dy;
               }
-              if (_translateY <= 0 &&
-                  details.delta.dy > 0 &&
-                  _translateX == 0) {
+
+              if (_translateY < 0 && details.delta.dy > 0 && _translateX == 0) {
                 _translateY += details.delta.dy;
+              } else if (delayX < 50) {
+                delayX += details.delta.dx.abs();
               } else if (_translateX <= 0.0 &&
                   details.delta.dx < 0 &&
                   _translateY == 0) {
@@ -233,7 +237,9 @@ class RotatingContainerState extends State<RotatingContainer>
             });
           },
           onPanEnd: (details) {
-            if (_translateY > -tillShowY && _translateY < 0) {
+            delayY = 0;
+            delayX = 0;
+            if (_translateY >= -tillShowY && _translateY <= 0) {
               setState(() {
                 _translateY = 0;
               });
@@ -244,7 +250,12 @@ class RotatingContainerState extends State<RotatingContainer>
                 widget.widgets.removeAt(0);
                 _translateY = 0;
               });
+            } else {
+              setState(() {
+                _translateY = 0;
+              });
             }
+
             _translateY = 0;
             if (_translateX < tillShow && _translateX > 0) {
               setState(() {
