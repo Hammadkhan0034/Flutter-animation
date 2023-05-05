@@ -204,24 +204,44 @@ class RotatingContainerState extends State<RotatingContainer>
         child: GestureDetector(
           onPanUpdate: (details) {
             setState(() {
-              if (_translateY <= 0 && details.delta.dy < 0) {
+              if (_translateY <= 0 &&
+                  details.delta.dy < 0 &&
+                  _translateX == 0) {
                 _translateY += details.delta.dy;
-              } else if (_translateX <= 0.0 && details.delta.dx < 0) {
+              }
+              if (_translateY <= 0 &&
+                  details.delta.dy > 0 &&
+                  _translateX == 0) {
+                _translateY += details.delta.dy;
+              } else if (_translateX <= 0.0 &&
+                  details.delta.dx < 0 &&
+                  _translateY == 0) {
                 _translateX += details.delta.dx;
-              } else if (_translateX >= 0.0 && details.delta.dx > 0) {
+              } else if (_translateX >= 0.0 &&
+                  details.delta.dx > 0 &&
+                  _translateY == 0) {
+                _translateX += details.delta.dx;
+              } else if (_translateX >= 0.0 &&
+                  details.delta.dx < 0 &&
+                  _translateY == 0) {
+                _translateX += details.delta.dx;
+              } else if (_translateX <= 0.0 &&
+                  details.delta.dx > 0 &&
+                  _translateY == 0) {
                 _translateX += details.delta.dx;
               }
             });
           },
           onPanEnd: (details) {
-            if (_translateY < -tillShowY) {
+            if (_translateY > -tillShowY && _translateY < 0) {
               setState(() {
                 _translateY = 0;
               });
             }
-            if (_translateY > -tillShowY && _translateX == 0) {
+            if (_translateY < -tillShowY && _translateX == 0) {
               setState(() {
                 widget.onLike();
+                widget.widgets.removeAt(0);
                 _translateY = 0;
               });
             }
@@ -285,6 +305,10 @@ class RotatingContainerState extends State<RotatingContainer>
                           style: TextStyle(color: Colors.black, fontSize: 30),
                         )
                       : Positioned(
+                          top: ((MediaQuery.of(context).size.height -
+                                      containerHeight) /
+                                  2) +
+                              _translateY,
                           left: ((MediaQuery.of(context).size.width -
                                       containerWidth) /
                                   2) +
